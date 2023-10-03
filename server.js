@@ -15,3 +15,26 @@
 // THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
 // WHEN I choose to update an employee role
 // THEN I am prompted to select an employee to update and their new role and this information is updated in the database
+
+// adding the necessary packages
+const express = require('express');
+const mysql = require('../employee-tracker/db/schema.sql')
+
+// initializing the apps
+const PORT = process.env.PORT || 3001;
+const app = express ();
+
+// middleware
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
+// connecting to the books_db database
+const db = mysql.createConnection(
+  {
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'books_db'
+  },
+  console.log(`Connected to the books_db database.`)
+);
