@@ -18,23 +18,26 @@
 
 // adding the necessary packages
 const express = require('express');
-const mysql = require('../employee-tracker/db/schema.sql')
+const inquirer = require('inquirer');
+// Import and require mysql2
+const mysql = require('mysql2');
 
-// initializing the apps
 const PORT = process.env.PORT || 3001;
-const app = express ();
+const app = express();
 
-// middleware
+// Express middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// connecting to the books_db database
+// connecting to database
 const db = mysql.createConnection(
   {
     host: 'localhost',
+    // MySQL username,
     user: 'root',
+    // MySQL password 
     password: '',
-    database: 'books_db'
+    database: 'movies_db'
   },
-  console.log(`Connected to the books_db database.`)
+  console.log(`Connected to the movies_db database.`)
 );
