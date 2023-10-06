@@ -41,3 +41,21 @@ const db = mysql.createConnection(
   },
   console.log(`Connected to the movies_db database.`)
 );
+
+const questions = [
+  {
+      type: 'list',
+      name: 'Options',
+      message: 'What Would You Like To Do?',
+      choices: [
+          'View All Employees',
+          'View All Roles',
+          'View All Departments',
+          'Add Employee',
+          'Add Role',
+          'Add Department',
+          'Update Employee Role',
+          'Quit'
+      ]
+  },
+];
