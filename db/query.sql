@@ -1,6 +1,6 @@
-SELECT employee.id, first_name, last_name, title, salary, department_name 
-FROM employee
-INNER JOIN role
-ON employee.role_id = role.id
-INNER JOIN department
-ON role.department_id = department.id
+SELECT employees.id, first_name, last_name, title, salary, departments.name 
+FROM employees
+INNER JOIN roles
+ON employees.roles_id = roles.id
+INNER JOIN departments
+ON roles.departments_id = departments.id
