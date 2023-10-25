@@ -1,18 +1,20 @@
 {
-  "dependencies": {
-    "express": "^4.17.1",
-    "inquirer": "^8.2.4",
-    "jshint": "^2.12.0",
-    "mysql2": "^2.3.3"
-  },
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "name": "employee-tracker",
-  "version": "1.0.0",
-  "main": "server.js",
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.17.1",
+    "inquirer": "^8.2.4",
+    "jshint": "^2.12.0",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.3.5"
+  }
 }

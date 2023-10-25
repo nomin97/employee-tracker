@@ -1,47 +1,31 @@
-// GIVEN a command-line application that accepts user input
-// WHEN I start the application
-// THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
-// WHEN I choose to view all departments
-// THEN I am presented with a formatted table showing department names and department ids
-// WHEN I choose to view all roles
-// THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
-// WHEN I choose to view all employees
-// THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
-// WHEN I choose to add a department
-// THEN I am prompted to enter the name of the department and that department is added to the database
-// WHEN I choose to add a role
-// THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
-// WHEN I choose to add an employee
-// THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
-// WHEN I choose to update an employee role
-// THEN I am prompted to select an employee to update and their new role and this information is updated in the database
-
 // adding the necessary packages
 const express = require('express');
 const inquirer = require('inquirer');
-// Import and require mysql2
-const mysql = require('mysql2');
+require('dotenv').config();
+const mysql = require('mysql2')
 
-const PORT = process.env.PORT || 3001;
 const app = express();
 
 // Express middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// connecting to database
+// Create a connection to the MySQL database
+const connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '', // Replace with your MySQL password
+  database: 'employee_db'
+});
 
-const db = mysql.createConnection(
-  {
-    host: 'localhost',
-    // MySQL username,
-    user: 'root',
-    //MySQL password here
-    password: '',
-    database: 'employee_db'
-  },
-  console.log(`Connected to the employee_db database.`)
-);
+// Connect to the MySQL server
+connection.connect((err) => {
+  if (err) {
+    console.error('Error connecting to MySQL:', err);
+    return;
+  }
+  console.log('Connected to the employee_db database.');
+});
 
 // user input questions
 const mainQ = [
@@ -123,57 +107,48 @@ const updateEmployeeQs = [
 // function to check answer
 function checkanswer(answer) {
   if (answer.toDo === 'view all departments') {
-    // Query database
-    db.query('SELECT * FROM departments', function (err, results) {
+    connection.query('SELECT * FROM departments', function (err, results) {
       console.log(results);
     });
-
   }
+
   if (answer.toDo === 'view all roles') {
-    // Query database
-    db.query('SELECT * FROM roles', function (err, results) {
+    connection.query('SELECT * FROM roles', function (err, results) {
       console.log(results);
     });
   }
-  if (answer.toDo === 'view all employees') {
-    // Query database
-    db.query('SELECT * FROM employees', function (err, results) {
-      console.log(results);
-    });
-  }
-  if (answer.toDo === 'add a department') {
 
+  if (answer.toDo === 'view all employees') {
+    connection.query('SELECT * FROM employees', function (err, results) {
+      console.log(results);
+    });
+  }
+
+  if (answer.toDo === 'add a department') {
     inquirer
       .prompt(addDepartmentQs)
-      .then((answers) => {
-
-
+      .then((answer) => {
       });
   }
-  if (answer.toDo === 'add a role') {
 
+  if (answer.toDo === 'add a role') {
     inquirer
       .prompt(addRoleQs)
       .then((answers) => {
-
       });
   }
-  if (answer.toDo === 'add an employee') {
 
+  if (answer.toDo === 'add an employee') {
     inquirer
       .prompt(addEmployeeQs)
       .then((answers) => {
-
-
       });
   }
-  if (answer.toDo === 'update an employee role') {
 
+  if (answer.toDo === 'update an employee role') {
     inquirer
       .prompt(updateEmployeeQs)
       .then((answers) => {
-
-
       });
   }
 };
@@ -182,11 +157,11 @@ function checkanswer(answer) {
 function init() {
   inquirer
     .prompt(mainQ)
-    .then((answer) => {
-      checkanswer(answer);
+    .then((answers) => {
+      checkanswer(answers);
     });
 };
 
-
-// Function call to initialize app
 init();
+
+// Add the missing logic inside the then callbacks of the prompts to handle the user input and perform the necessary database operations.
