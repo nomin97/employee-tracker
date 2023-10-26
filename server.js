@@ -2,7 +2,8 @@
 const express = require('express');
 const inquirer = require('inquirer');
 require('dotenv').config();
-const mysql = require('mysql2')
+const mysql = require('mysql2');
+const { AsyncQueueError } = require('sequelize');
 
 const app = express();
 
@@ -27,13 +28,18 @@ connection.connect((err) => {
   console.log('Connected to the employee_db database.');
 });
 
+const departmentList = async () => {
+  const [departments] = await connection.promise().query('SELECT * FROM department')
+  return departments.map(({ name, id }) => ({ name: name, value: id }))
+}
+
 // user input questions
 const mainQ = [
   {
     type: 'list',
     name: 'toDo',
     message: 'What would you like to do?',
-    choices: ['view all departments', 'view all roles', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role'],
+    choices: ['view all departments', 'view all roles', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role', 'delete department'],
   },
 ];
 
@@ -60,7 +66,7 @@ const addRoleQs = [
     type: 'list',
     name: 'roleDepartment',
     message: 'Select department of role:',
-    choices: [],
+    choices: departmentList,
   },
 ];
 
@@ -105,29 +111,58 @@ const updateEmployeeQs = [
 ]
 
 // function to check answer
-function checkanswer(answer) {
+async function checkanswer(answer) {
   if (answer.toDo === 'view all departments') {
-    connection.query('SELECT * FROM departments', function (err, results) {
-      console.log(results);
-    });
+    const [departments] = await connection.promise().query('SELECT * FROM department')
+    console.table(departments)
+    init();
+  }
+
+  if (answer.toDo === 'delete department') {
+    inquirer.prompt({ type: 'list', name: 'departmentID', message: 'select department to delete', choices: departmentList })
+      .then((answer) => {
+        connection.promise().query('DELETE FROM department WHERE id= ?', answer.departmentID).then(async ([response]) => {
+          if (response.affectedRows > 0) {
+            const [departments] = await connection.promise().query('SELECT * FROM department')
+            console.table(departments)
+            init();
+          } else {
+            console.error("failed to delete department")
+            init()
+          }
+        })
+      })
   }
 
   if (answer.toDo === 'view all roles') {
-    connection.query('SELECT * FROM roles', function (err, results) {
-      console.log(results);
-    });
+    const [roles] = await connection.promise().query('SELECT * FROM roles')
+    console.table(roles)
+    init();
   }
 
   if (answer.toDo === 'view all employees') {
-    connection.query('SELECT * FROM employees', function (err, results) {
-      console.log(results);
-    });
-  }
+    const [employees] = await connection.promise().query('SELECT * FROM employees')
+    console.table(employees)
+    init();
+  };
+
 
   if (answer.toDo === 'add a department') {
     inquirer
       .prompt(addDepartmentQs)
-      .then((answer) => {
+      .then((answers) => {
+        const department = { name: answers.departmentName }
+        connection.promise().query("insert into department set ?", department).then(async ([response]) => {
+          if (response.affectedRows > 0) {
+            const [departments] = await connection.promise().query('SELECT * FROM department')
+            console.table(departments)
+            init();
+          } else {
+            console.error("failed to add department")
+            init()
+          }
+        })
+
       });
   }
 
@@ -135,6 +170,17 @@ function checkanswer(answer) {
     inquirer
       .prompt(addRoleQs)
       .then((answers) => {
+        const role = { title: answers.roleName, salary: answers.roleSalary, department_id: answers.roleDepartment }
+        connection.promise().query("insert into roles set ?", role).then(async ([response]) => {
+          if (response.affectedRows > 0) {
+            const [roles] = await connection.promise().query('SELECT * FROM roles')
+            console.table(roles)
+            init();
+          } else {
+            console.error("failed to add role")
+            init()
+          }
+        })
       });
   }
 
@@ -142,6 +188,17 @@ function checkanswer(answer) {
     inquirer
       .prompt(addEmployeeQs)
       .then((answers) => {
+        const employee = { first_name: answers.employeeFirstName, last_name: answers.employeeLastName, role_id: answers.employeeRole }
+        connection.promise().query("insert into employees set ?", employee).then(async ([response]) => {
+          if (response.affectedRows > 0) {
+            const [employees] = await connection.promise().query('SELECT * FROM employees')
+            console.table(employees)
+            init();
+          } else {
+            console.error("failed to add employee")
+            init()
+          }
+        })
       });
   }
 
@@ -149,19 +206,29 @@ function checkanswer(answer) {
     inquirer
       .prompt(updateEmployeeQs)
       .then((answers) => {
+        const employee = { first_name: answers.employeeFirstName, last_name: answers.employeeLastName, role_id: answers.employeeRole }
+        connection.promise().query("insert into employees set ?", employee).then(async ([response]) => {
+          if (response.affectedRows > 0) {
+            const [employees] = await connection.promise().query('SELECT * FROM employees')
+            console.table(employees)
+            init();
+          } else {
+            console.error("failed to add employee")
+            init()
+          }
+        });
       });
-  }
-};
+  };
+  
+}
 
-// TODO: Create a function to initialize app
-function init() {
-  inquirer
-    .prompt(mainQ)
-    .then((answers) => {
-      checkanswer(answers);
-    });
-};
+  // TODO: Create a function to initialize app
+  function init() {
+    inquirer
+      .prompt(mainQ)
+      .then((answers) => {
+        checkanswer(answers);
+      });
+  };
 
-init();
-
-// Add the missing logic inside the then callbacks of the prompts to handle the user input and perform the necessary database operations.
+  init()

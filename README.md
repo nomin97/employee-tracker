@@ -15,7 +15,7 @@
   n/a
   
   ## Installation 
-  First, install node.js and npm package. Then run 'npm i' to install necessary packages such as inquirer and mysql2. Check your package.json to check everything is installed in the correct version.Then run 'npm start' to start th e application. 
+  First, install node.js and npm package. Then run 'npm i' to install necessary packages such as inquirer and mysql2. Check your package.json to check everything is installed in the correct version.Then run 'npm start' to start the application. 
   
   ## Usage
   (video of application being run)
