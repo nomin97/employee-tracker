@@ -33,6 +33,15 @@ const departmentList = async () => {
   return departments.map(({ name, id }) => ({ name: name, value: id }))
 }
 
+const rolesList= async () => {
+  const [roles] = await connection.promise().query('SELECT * FROM roles')
+  return roles.map(({ title, salary, id }) => ({ name: title, value:salary, value: id }))
+}
+
+const employeesList = async () => {
+  const [employees] = await connection.promise().query('SELECT * FROM employees')
+  return employees.map(({ firstName, lastName, id }) => ({ name: firstName, name: lastName, value: id }))
+}
 // user input questions
 const mainQ = [
   {
@@ -85,13 +94,7 @@ const addEmployeeQs = [
     type: 'list',
     name: 'employeeRole',
     message: 'Select employee role:',
-    choices: [],
-  },
-  {
-    type: 'list',
-    name: 'employeeManager',
-    message: 'Select employee manager:',
-    choices: [],
+    choices: rolesList,
   },
 ];
 
@@ -100,13 +103,13 @@ const updateEmployeeQs = [
     type: 'list',
     name: 'employeeSelect',
     message: 'Select employee you would like to update:',
-    choices: [],
+    choices: employeesList,
   },
   {
     type: 'list',
     name: 'employeeNewRole',
     message: 'Select employee role',
-    choices: [],
+    choices: rolesList,
   },
 ]
 
@@ -145,7 +148,6 @@ async function checkanswer(answer) {
     console.table(employees)
     init();
   };
-
 
   if (answer.toDo === 'add a department') {
     inquirer
@@ -203,26 +205,23 @@ async function checkanswer(answer) {
   }
 
   if (answer.toDo === 'update an employee role') {
-    inquirer
-      .prompt(updateEmployeeQs)
-      .then((answers) => {
-        const employee = { first_name: answers.employeeFirstName, last_name: answers.employeeLastName, role_id: answers.employeeRole }
-        connection.promise().query("insert into employees set ?", employee).then(async ([response]) => {
-          if (response.affectedRows > 0) {
-            const [employees] = await connection.promise().query('SELECT * FROM employees')
-            console.table(employees)
-            init();
-          } else {
-            console.error("failed to add employee")
-            init()
-          }
-        });
-      });
+    inquirer.prompt(updateEmployeeQs)
+    .then((answer) => {
+      connection.promise().query('UPDATE FROM ROLES WHERE id= ?', answer.rolesID).then(async ([response]) => {
+        if (response.affectedRows > 0) {
+          const [roles] = await connection.promise().query('SELECT * FROM roles')
+          console.table(roles)
+          init();
+        } else {
+          console.error("failed to update role")
+          init()
+        }
+      })
+    })
   };
-  
 }
 
-  // TODO: Create a function to initialize app
+  // function to initialize app
   function init() {
     inquirer
       .prompt(mainQ)
