@@ -24,7 +24,7 @@
   n/a
   
   ## Credits
-  Shoutout to the xpert learning assistant ai.
+  Shoutout to the xpert learning assistant ai and to tutor Corey for helping me. 
   
   ## Questions?
   * Email: <nominmyagmarsuren@gmail.com>
