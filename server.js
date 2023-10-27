@@ -40,8 +40,9 @@ const rolesList= async () => {
 
 const employeesList = async () => {
   const [employees] = await connection.promise().query('SELECT * FROM employees')
-  return employees.map(({ firstName, lastName, id }) => ({ name: firstName, name: lastName, value: id }))
+  return employees.map(({ first_name, id}) => ({ name: first_name, value:id }))
 }
+
 // user input questions
 const mainQ = [
   {
@@ -93,7 +94,7 @@ const addEmployeeQs = [
   {
     type: 'list',
     name: 'employeeRole',
-    message: 'Select employee role:',
+    message: 'Select new employee role:',
     choices: rolesList,
   },
 ];
@@ -108,9 +109,21 @@ const updateEmployeeQs = [
   {
     type: 'list',
     name: 'employeeNewRole',
-    message: 'Select employee role',
+    message: 'Select employee new role',
     choices: rolesList,
   },
+  {
+    type: 'input',
+    name: 'employeeNewSalary',
+    message: 'Enter salary of new role:',
+  },
+  {
+    type: 'list',
+    name: 'employeeNewDepartment',
+    message: 'Select department of new role:',
+    choices: departmentList,
+  },
+
 ]
 
 // function to check answer
@@ -187,10 +200,9 @@ async function checkanswer(answer) {
   }
 
   if (answer.toDo === 'add an employee') {
-    inquirer
-      .prompt(addEmployeeQs)
+    inquirer.prompt(addEmployeeQs)
       .then((answers) => {
-        const employee = { first_name: answers.employeeFirstName, last_name: answers.employeeLastName, role_id: answers.employeeRole }
+        const employee = { first_name:answers.employeeFirstName, last_name:answers.employeeLastName, role_id:answers.employeeRole }
         connection.promise().query("insert into employees set ?", employee).then(async ([response]) => {
           if (response.affectedRows > 0) {
             const [employees] = await connection.promise().query('SELECT * FROM employees')
@@ -206,8 +218,9 @@ async function checkanswer(answer) {
 
   if (answer.toDo === 'update an employee role') {
     inquirer.prompt(updateEmployeeQs)
-    .then((answer) => {
-      connection.promise().query('UPDATE FROM ROLES WHERE id= ?', answer.rolesID).then(async ([response]) => {
+    .then((answers) => {
+      const role = {title: answers.employeeNewRole, salary: answers.employeeNewSalary, department_id: answers.employeeNewDepartment }
+      connection.promise().query('insert into ROLES set ?', role).then(async ([response]) => {
         if (response.affectedRows > 0) {
           const [roles] = await connection.promise().query('SELECT * FROM roles')
           console.table(roles)
@@ -215,7 +228,7 @@ async function checkanswer(answer) {
         } else {
           console.error("failed to update role")
           init()
-        }
+        };
       })
     })
   };
